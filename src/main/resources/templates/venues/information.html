@@ -1,0 +1,71 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<head>
+  <title>Event Information</title>
+  <script src='https://api.mapbox.com/mapbox.js/v3.3.0/mapbox.js'></script>
+  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css">
+  <link href='https://api.mapbox.com/mapbox.js/v3.3.0/mapbox.css' rel='stylesheet' />
+</head>
+<body>
+  <div layout:fragment="content">
+    <h1>Venue Information</h1>
+      
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th><i class="fas fa-bolt"></i> Venue</th>
+          <th><i class="fas fa-map-marker-alt"></i> Address</th>
+          <th><i class="fas fa-users"></i> Capacity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td th:text="${venue.name}">Venue name</td>
+          <td th:text="${venue.roadname + ', ' + venue.postcode}">Venue Address</td>
+          <td th:text="${venue.capacity}">Venue Capacity</td>
+          <td>
+            <form th:action="@{/venues/update/{num}(num=${venue.id})}" th:method="GET">
+              <button type="submit" class="btn btn-info"><i class="fas fa-edit"></i> Edit</button>
+            </form>
+          </td>
+          <td>
+            <form th:action="@{/venues/delete/{num}(num=${venue.id})}" th:method="DELETE">
+              <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <a href="/events" class="btn btn-primary">Go back to main</a>
+
+    <div id="map" style="width:100%; min-height:500px; height:100%; margin-top:20px">
+      <script th:inline="javascript">
+        var venueName = /*[[${venue.name}]]*/;
+        var latitude = /*[[${venue.latitude}]]*/;
+        var longitude = /*[[${venue.longitude}]]*/;
+
+        L.mapbox.accessToken = 'pk.eyJ1IjoiZXZlbnRsaXRlZjEyIiwiYSI6ImNrODMwOWM3ODAxa3AzdW81YTFyaGp4cGkifQ.FzUdEKsz2vsaMLx2W69pXQ';
+        var map = L.mapbox.map('map')
+          .setView([latitude, longitude], 16)
+          .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11'));
+
+        L.marker([latitude, longitude], {
+          icon: L.mapbox.marker.icon({
+            'marker-size': 'large',
+            'marker-color': '#fa0'
+            })
+        })
+        .bindPopup(venueName)
+        .addTo(map);
+      </script>
+    </div>
+  </div>
+  
+  <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/webjars/popper.js/umd/popper.min.js"></script>
+  <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>

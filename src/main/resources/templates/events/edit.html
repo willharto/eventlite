@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+      
+<head>
+  <title>EventLite - Update event</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css">
+</head>
+
+<body>
+  <div layout:fragment="content">
+  
+    <h1 th:text="${'Update ' + event.name}">Update event</h1>
+    
+    <form id="form" th:action="@{/events/update/{id}(id=${event.id})}" method="POST">
+        <p th:text="${emptyFields}"></p>
+        <div class="form-group mx-sm-3 mb-2">
+          <label for="nameInput" class="col-lg-4 col-md-7 col-sm-12 control-label"><b>Event Name:</b></label>
+          <input type="text" th:value="${event.name}" name="name" class="form-control" maxlength="255" placeholder="Event Name" id="nameInput" autofocus required>
+        </div>
+
+        <div class="form-group mx-sm-3 mb-2">
+          <label for="dateInput" class="col-lg-4 col-md-7 col-sm-12 control-label"><b>Event Date:</b></label>
+          <input type="date" th:value="${event.date}" onchange="checkDate()" name="date" class="form-control" placeholder="DD/MM/YYYY" id="dateInput" required>
+        </div>
+
+        <div class="form-group mx-sm-3 mb-2">
+          <label for="timeInput" class="col-lg-4 col-md-7 col-sm-12 control-label"><b>Event Time:</b></label>
+          <input type="time" th:value="${event.time}" name="time" class="form-control" placeholder="HH:MM" id="timeInput">
+        </div>
+
+        <div class="form-group mx-sm-3 mb-2">
+          <label for="venues" class="col-lg-4 col-md-7 col-sm-12 control-label"><b>Event Venue:</b></label>
+          <br>
+          <select id="venues" name="venue">
+            <option th:each="v : ${venues}" th:value="${v.id}" th:text="${v.name + ' | Capacity: ' + v.capacity}">Venue Name</option>
+          </select>
+        </div>
+
+        <div class="form-group mx-sm-3 mb-2">
+          <label for="descrInput" class="col-lg-4 col-md-7 col-sm-12 control-label"><b>Event Description:</b></label>
+          <textarea name="description" th:field="*{event.description}" onkeyup="charactersLeft()" class="form-control" rows="3" maxlength="499" placeholder="Event description" id="descrInput"></textarea>
+          <p style="font-size: 10pt" id="charsLeft">499 characters left</p>
+        </div>
+
+        <!-- Buttons -->
+        <div class="form-group" style="padding: 1rem 1rem;">
+          <button class="btn btn-primary col-2" type="submit"><i class="fa fa-sync-alt"></i> Update Event</button>
+          <span style="padding: 0% 0.5rem;"></span>
+          <button class="btn btn-danger col-2" type="reset"><i class="fas fa-undo"></i> Reset Fields</button>
+          <span style="padding: 0% 0.5rem;"></span>
+          <a class="btn btn-warning col-2" href="/events"><i class="fas fa-ban"></i> Cancel</a>
+        </div>
+    </form>
+    
+    <script type="text/javascript">      
+      <!-- Script to check that date provided is not in the past -->
+      function checkDate() {
+        var selectedText = document.getElementById('dateInput').value;
+        var selectedDate = new Date(selectedText);
+        var now = new Date();
+        if (selectedDate < now) {
+          alert("Date must be in the future!");
+        }
+      }
+      
+      <!-- Script for dynamic 'characters left' text -->
+      function charactersLeft() {
+        var x = 499 - document.getElementById("descrInput").value.length;
+        document.getElementById("charsLeft").innerHTML = x + " characters left";
+      }
+    </script>
+  </div>
+  
+  <!-- Scripts -->
+  <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/webjars/popper.js/umd/popper.min.js"></script>
+  <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>

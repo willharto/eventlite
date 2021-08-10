@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<head>
+  <title>All events</title>
+  
+  <script src='https://api.mapbox.com/mapbox.js/v3.3.0/mapbox.js'></script>
+  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="https://api.mapbox.com/mapbox.js/v3.3.0/mapbox.css">
+  
+  
+</head>
+<body>
+  <div layout:fragment="content">
+    <h1><a href="/events">All events</a></h1>
+
+    <!-- Search function -->
+    <form th:action="@{/events/search}" th:method="GET">
+      <div class="input-group">
+        <input type="search" name="search" class="form-control" placeholder="Search event by name...">
+        <button type="submit" class="btn btn-primary input-group-addon"><i class="fas fa-search"></i> Search</button>
+      </div>
+    </form>
+    <!-- Not found banner alert -->
+     <p th:if="${noEventFound}" th:text="'No event exists with the name: ' + ${eventName}"  class="alert alert-warning" role="alert"></p>
+     <p th:unless="${noEventFound}"></p>
+     
+    <!-- Sort by -->
+    <table>
+      <tbody>
+        <tr>
+          <td>
+            <form th:action="@{/events/sort/name}" th:method="GET">
+              <button type="submit" class="btn btn-warning"><i class="fas fa-sort"></i> Sort by Event Name</button>
+            </form>
+          </td>
+          <td>
+            <form th:action="@{/events/sort/date}" th:method="GET">
+              <button type="submit" class="btn btn-warning"><i class="fas fa-sort"></i> Sort by Event Date</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <br>
+    
+    <!-- List of all events sorted -->
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th><i class="fa fa-asterisk"></i> ID</th>
+          <th><i class="fas fa-bolt"></i> Event</th>
+          <th><i class="fas fa-map-marker-alt"></i> Venue</th>
+          <th><i class="fas fa-calendar"></i> Date</th>
+          <th><i class="fas fa-clock"></i> Time</th>
+          <th><i class="fa fa-info-circle"></i> Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr  th:each="e : ${events}">
+          <td th:text="${e.id}">My Event ID</td>
+          <td> <a th:href="@{/events/details/{id}(id=${e.id})}" th:method="GET" th:text="${e.name}">My Event</a></td>
+          <td th:text="${e.venue.name}">Event venue</td>
+          <td th:text="${e.date}">Event date</td>
+          <td th:text="${e.time}">Event time</td>
+          <td th:text="${e.description}">Event Description</td>
+        </tr>
+      </tbody>
+    </table>
+    <a href="/events/new" class="btn btn-primary"><i class="fas fa-plus-square"></i> Add a new event</a>
+
+    <br>
+    <br>
+
+    <!-- Search function -->
+    <form th:action="@{/venues/search}" th:method="GET">
+      <div class="input-group">
+        <input type="search" name="search" class="form-control" placeholder="Search venue by name...">
+        <button type="submit" class="btn btn-primary input-group-addon"><i class="fas fa-search"></i> Search</button>
+      </div>
+    </form>
+    
+    <!-- Not found banner alert -->
+     <p th:if="${noVenueFound}" th:text="'No venue exists with the name: ' + ${venueName}"  class="alert alert-warning" role="alert"></p>
+     <p th:unless="${noVenueFound}"></p>
+     
+    <!-- List of all venues sorted -->
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th><i class="fa fa-asterisk"></i> ID</th>
+          <th><i class="fas fa-bolt"></i> Venue</th>
+          <th><i class="fas fa-map-marker-alt"></i> Address</th>
+          <th><i class="fas fa-users"></i> Capacity</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr  th:each="v : ${venues}">
+          <td th:text="${v.id}">Venue ID</td>
+          <td> <a th:href="@{/venues/details/{id}(id=${v.id})}" th:method="GET" th:text="${v.name}">Venue name</a></td>
+          <td th:text="${v.roadname + ', ' + v.postcode}">Venue address</td>
+          <td th:text="${v.capacity}">Venue capacity</td>
+        </tr>
+      </tbody>
+    </table>
+    <a href="/venues/new" class="btn btn-primary"><i class="fas fa-plus-square"></i> Add a new venue</a>
+    
+    <h2 style="margin-top:10px">Twitter</h2>
+    <table class="table table-striped table-hover" style="margin-top: 10px;">
+      <thead>
+        <tr>
+          <th><i class="fas fa-calendar"></i> Date</th>
+          <th><i class="fab fa-twitter"></i> Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr th:each="t : ${tweets}">
+          <td th:text="${t.date}" style="display: inline-block;">Tweet Date</td>
+          <td><a th:href="${t.tweetURL}" th:method="GET" th:text="${t.tweet}">Tweet Text</a></td>
+        </tr>
+      </tbody>
+    </table>
+    
+    <div id="map" style="width: 100%; min-height: 500px; height: auto; margin-top: 20px; margin-bottom:40px;"></div>
+      <script th:inline="javascript">
+        L.mapbox.accessToken = 'pk.eyJ1IjoiZXZlbnRsaXRlZjEyIiwiYSI6ImNrODMwOWM3ODAxa3AzdW81YTFyaGp4cGkifQ.FzUdEKsz2vsaMLx2W69pXQ';
+        var map = L.mapbox.map("map")
+          .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11'));
+
+        var events = /*[[${events}]]*/;
+        var markers = [];
+        var i;
+        for (i = 0; i < events.length; i++) {
+          var venueName = events[i].venue.name;
+          var latitude = events[i].venue.latitude;
+          var longitude = events[i].venue.longitude;
+
+          var marker = L.marker([latitude, longitude], {
+            icon: L.mapbox.marker.icon({
+              'marker-size': 'large',
+              'marker-color': '#fa0'
+              })
+          })
+          .bindPopup(venueName)
+          .addTo(map);
+
+          markers.push(marker);
+        }
+
+        var group = new L.featureGroup(markers);
+        map.fitBounds(group.getBounds());
+      </script>
+  </div>
+
+</body>
+</html>

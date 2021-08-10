@@ -1,0 +1,82 @@
+<!DOCTYPE HTML>
+<html xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layouts/default}">
+<head>
+  <title>Event Information</title>
+  <script src='https://api.mapbox.com/mapbox.js/v3.3.0/mapbox.js'></script>
+  <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css">
+  <link rel="stylesheet" href="/webjars/font-awesome/css/all.min.css">
+  <link href='https://api.mapbox.com/mapbox.js/v3.3.0/mapbox.css' rel='stylesheet' />
+</head>
+<body>
+  <div layout:fragment="content">
+    <h1>Event Information</h1>
+      
+    <table class="table table-striped table-hover">
+      <thead>
+        <tr>
+          <th><i class="fas fa-bolt"></i> Event</th>
+          <th><i class="fas fa-map-marker-alt"></i> Venue</th>
+          <th><i class="fas fa-calendar"></i> Date</th>
+          <th><i class="fas fa-clock"></i> Time</th>
+          <th><i class="fas fa-align-justify"></i> Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td th:text="${event.name}">Event name</td>
+          <td th:text="${event.venue.name}">Event venue</td>
+          <td th:text="${event.date}">Event date</td>
+          <td th:text="${event.time}">Event time</td>
+          <td th:text="${event.description}">Description</td>
+          <td>
+            <form th:action="@{/events/update/{num}(num=${event.id})}" th:method="GET">
+              <button type="submit" class="btn btn-info"><i class="fas fa-edit"></i> Edit</button>
+            </form>
+          </td>
+          <td>
+            <form th:action="@{/events/delete/{num}(num=${event.id})}" th:method="DELETE">
+              <button type="submit" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</button>
+            </form>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <p th:if="${tweetSuccess}" th:text="'Successfully submitted: ' + ${tweetSuccess}"  class="alert alert-success" role="alert" style="margin-bottom: 5px;"></p>
+    <form th:action="@{/events/tweet/{id}(id=${event.id})}" th:method="POST" style="margin-top: 10px;">
+      <input type="text" id="tweet" name="tweet" style="width: 75%;" maxlength="300" onkeyup="charactersLeft()">
+      <p style="font-size: 10pt" id="charsLeft">300 characters left</p>
+      <button type="submit" class="btn btn-primary"><i class="fab fa-twitter"></i> Tweet</button>
+    </form>
+    
+    <a href="/events" class="btn btn-primary">Go back to main</a>
+
+    <div id="map" style="width:100%; min-height:500px; height:100%; margin-top:20px;">
+      <script th:inline="javascript">
+        var venueName = /*[[${event.venue.name}]]*/;
+        var latitude = /*[[${event.venue.latitude}]]*/;
+        var longitude = /*[[${event.venue.longitude}]]*/;
+
+        L.mapbox.accessToken = 'pk.eyJ1IjoiZXZlbnRsaXRlZjEyIiwiYSI6ImNrODMwOWM3ODAxa3AzdW81YTFyaGp4cGkifQ.FzUdEKsz2vsaMLx2W69pXQ';
+        var map = L.mapbox.map('map')
+          .setView([latitude, longitude], 16)
+          .addLayer(L.mapbox.styleLayer('mapbox://styles/mapbox/streets-v11'));
+          L.marker([latitude, longitude], {
+          icon: L.mapbox.marker.icon({
+            'marker-size': 'large',
+            'marker-color': '#fa0'
+            })
+        })
+        .bindPopup(venueName)
+        .addTo(map);
+      </script>
+    </div>
+
+  </div>
+  
+  <script type="text/javascript" src="/webjars/jquery/jquery.min.js"></script>
+  <script type="text/javascript" src="/webjars/popper.js/umd/popper.min.js"></script>
+  <script type="text/javascript" src="/webjars/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>
